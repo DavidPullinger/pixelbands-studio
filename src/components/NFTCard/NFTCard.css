@@ -1,0 +1,59 @@
+.card-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1/1;
+  transition: all ease-in-out 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.08);
+}
+
+.empty-card {
+  background-color: black;
+  aspect-ratio: 1/1;
+  color: antiquewhite;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all ease-in-out 0.2s;
+}
+
+.empty-card:hover {
+  transform: scale(1.08);
+}
+
+.video {
+  width: 80%;
+  bottom: 0;
+}
+
+.controls {
+  padding: 0 1rem;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: flex-end;
+}
+
+.buttons {
+  width: 100%;
+  padding-bottom: 20%;
+}
+
+.dial {
+  width: 100%;
+}

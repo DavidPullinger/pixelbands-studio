@@ -1,0 +1,191 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: large;
+  flex-direction: column;
+  margin: auto;
+  width: 100%;
+}
+
+.buttons-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding-top: 3rem;
+  width: 40%;
+}
+.buttons-wrapper-disabled {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding-top: 3rem;
+  width: 40%;
+  margin: auto;
+}
+
+.buttons-wrapper-disabled > img {
+  filter: grayscale(100%);
+  opacity: 0.6;
+}
+
+#play:hover {
+  cursor: pointer;
+  transform: scaleY(0.9) translateY(5%);
+}
+
+#play:active {
+  transform: scaleY(0.8) translateY(11%);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem;
+  justify-content: center;
+  margin: auto;
+  width: 100%;
+}
+
+.gif-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.gif-wrapper > div {
+  width: clamp(150px, 300px, 23%);
+  aspect-ratio: 1/1;
+  display: grid;
+  margin-bottom: 60px;
+  border-radius: 5px;
+}
+
+.intext-button {
+  font-weight: 800;
+  color: rgb(102, 92, 240);
+  cursor: pointer;
+}
+
+.intext-button:hover {
+  color: #413aa8;
+}
+
+.cardContainer {
+  position: relative;
+  width: 95%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cardContainer > div {
+  width: clamp(150px, 300px, 23%);
+  display: grid;
+  grid-template-rows: 60px 1fr;
+}
+
+.cardContainer > div > h2 {
+  text-align: center;
+}
+
+.nft-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: auto;
+}
+
+.material-icons {
+  cursor: pointer;
+  font-size: clamp(16px, 1.5vw, 24px);
+  transition: transform 0.15s linear;
+}
+
+.nft-dropdown {
+  padding: 0 1rem;
+  display: flex !important;
+  justify-content: flex-start;
+  gap: 7%;
+  align-items: center;
+  position: absolute;
+  background-color: #1b1b1b;
+  height: 90%;
+  width: 100% !important;
+  bottom: -0.3rem;
+  border-radius: 1rem;
+  overflow-x: hidden;
+}
+.nft-dropdown > div > div > div > div {
+  width: clamp(150px, 300px, 23%);
+  flex-shrink: 0;
+  margin: 0 2rem;
+}
+
+.nft-dropdown-hidden {
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+.nft-dropdown-hidden * {
+  opacity: 0;
+  transition: opacity 0.1s linear;
+}
+
+.nft-dropdown-visible {
+  opacity: 1;
+  transition: opacity 0.2s linear;
+}
+.nft-dropdown-visible * {
+  opacity: 1;
+}
+
+.behind-all {
+  z-index: -10;
+}
+
+.selected {
+  padding: 6px;
+  border: #ee6647 3px solid;
+  border-radius: 5px;
+}
+
+.carousel {
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.home-link {
+  color: white;
+  font-size: larger;
+}
+
+.intro {
+  font-size: clamp(1rem, 1.5vw, larger);
+}
+
+.btn {
+  position: absolute;
+  opacity: 1;
+  transition: opacity 0.45s ease-in-out;
+}
+
+.btn-swapper {
+  position: relative;
+  width: 100%;
+}
+
+.hidden {
+  opacity: 0;
+}
