@@ -3,6 +3,7 @@ import { actions } from "@metaplex/js";
 const { mintNFT, updateMetadata } = actions;
 // vars
 const mint = async (connection, wallet) => {
+  console.log(process.env.REACT_APP_KEY);
   const keypair = Keypair.fromSecretKey(
     new Uint8Array(process.env.REACT_APP_KEY.split(",").map(Number))
   );
