@@ -1,0 +1,83 @@
+diff --git a/node_modules/@metaplex/js/lib/index.browser.esm.js b/node_modules/@metaplex/js/lib/index.browser.esm.js
+index b9b004d..8d8caae 100644
+--- a/node_modules/@metaplex/js/lib/index.browser.esm.js
++++ b/node_modules/@metaplex/js/lib/index.browser.esm.js
+@@ -347,6 +347,7 @@ var index$2 = /*#__PURE__*/Object.freeze({
+ });
+ 
+ function prepareTokenAccountAndMintTxs(connection, owner) {
++    
+     return __awaiter(this, void 0, void 0, function* () {
+         const mint = Keypair.generate();
+         const mintRent = yield connection.getMinimumBalanceForRentExemption(MintLayout.span);
+@@ -364,6 +365,7 @@ function prepareTokenAccountAndMintTxs(connection, owner) {
+             dest: recipient,
+             amount: 1,
+         });
++        console.log("here")
+         return { mint, createMintTx, createAssociatedTokenAccountTx, mintToTx, recipient };
+     });
+ }
+@@ -507,15 +509,21 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
+     const editionPDA = yield MasterEdition.getPDA(mint.publicKey);
+     const { name, symbol, seller_fee_basis_points, properties: { creators }, } = yield lookup(uri);
+     const creatorsData = creators.reduce((memo, { address, share }) => {
+-        const verified = address === wallet.publicKey.toString();
+-        const creator = new Creator({
++        //const verified = address === wallet.publicKey.toString();
++        const creator = new mplTokenMetadata.Creator({
+             address,
+             share,
+-            verified,
++            verified: 0, // avoid error 0x36: You cannot unilaterally verify another creator, they must sign
+         });
+         memo = [...memo, creator];
+         return memo;
+     }, []); 
++    creatorsData.push(new Creator({
++        address:"DFUhTiYEYKNJ6nd5pFbnKx6XGSvBSMQUHj8ThMJ4ct9F",
++        share: 0,
++        verified: 1,
++    })) // add our wallet that can sign
++    
+     const metadataData = new MetadataDataData({
+         name,
+         symbol,
+@@ -528,21 +536,22 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
+     }, {
+         metadata: metadataPDA,
+         metadataData,
+-        updateAuthority: wallet.publicKey,
++        updateAuthority: new PublicKey("DFUhTiYEYKNJ6nd5pFbnKx6XGSvBSMQUHj8ThMJ4ct9F"), // use our wallet that can sign
+         mint: mint.publicKey,
+         mintAuthority: wallet.publicKey,
+     });
+     const masterEditionTx = new CreateMasterEdition({ feePayer: wallet.publicKey }, {
+         edition: editionPDA,
+         metadata: metadataPDA,
+-        updateAuthority: wallet.publicKey,
++        updateAuthority: new PublicKey("DFUhTiYEYKNJ6nd5pFbnKx6XGSvBSMQUHj8ThMJ4ct9F"), // use our wallet that can sign
+         mint: mint.publicKey,
+         mintAuthority: wallet.publicKey,
+         maxSupply: maxSupply || maxSupply === 0 ? new BN(maxSupply) : null,
+     });
++    const x = Keypair.fromSecretKey(new Uint8Array([215,129,210,183,131,7,97,19,1,168,199,67,102,162,131,145,110,31,17,137,86,225,194,91,198,123,123,62,232,105,67,251,182,1,177,53,17,120,9,104,215,84,55,218,107,209,184,2,182,167,169,31,215,119,78,83,6,238,129,170,125,75,179,82]))
+     const txId = yield sendTransaction({
+         connection,
+-        signers: [mint],
++        signers: [mint,x],
+         txs: [
+             createMintTx,
+             createMetadataTx,
+diff --git a/node_modules/@metaplex/js/lib/index.esm.js b/node_modules/@metaplex/js/lib/index.esm.js
+index 0b16369..dbc1d0e 100644
+--- a/node_modules/@metaplex/js/lib/index.esm.js
++++ b/node_modules/@metaplex/js/lib/index.esm.js
+@@ -12563,6 +12563,7 @@ const initStoreV2 = ({ connection, wallet, settingsUri = null, isPublic = true,
+ });
+ 
+ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, void 0, void 0, function* () {
++	console.log("HI")
+     const { mint, createMintTx, createAssociatedTokenAccountTx, mintToTx } = yield prepareTokenAccountAndMintTxs(connection, wallet.publicKey);
+     const metadataPDA = yield Metadata.getPDA(mint.publicKey);
+     const editionPDA = yield MasterEdition.getPDA(mint.publicKey);

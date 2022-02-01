@@ -1,15 +1,23 @@
-import { PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import { actions } from "@metaplex/js";
 const { mintNFT, updateMetadata } = actions;
 // vars
+const mint = async (connection, wallet) => {
+  const keypair = Keypair.fromSecretKey(
+    new Uint8Array(process.env.REACT_APP_KEY.split(",").map(Number))
+  );
 
-const mint = async (connection, userWallet) => {
   await mintNFT({
-    connection: connection,
-    wallet: userWallet,
-    uri: "https://bafkreibfslhdqknd32tvtmn4o2hnxzurzeti356yeyhtmv2tt3omdqntfu.ipfs.dweb.link/",
+    connection,
+    wallet,
+    uri: "https://ipfs.io/ipfs/bafkreidmbmiehdu5f4ia7atskie7ih6cvgglxb2vhread2kupn6x3edov4",
     maxSupply: 1,
-  }).then((res) =>
+    keypair,
+  });
+};
+
+/*
+.then((res) =>
     updateMetadata({
       connection: connection,
       wallet: userWallet,
@@ -20,8 +28,5 @@ const mint = async (connection, userWallet) => {
       primarySaleHappened: true,
     })
   );
-};
-
-/*
  */
 export default mint;
