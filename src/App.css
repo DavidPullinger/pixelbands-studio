@@ -133,3 +133,20 @@ img {
   gap: 1rem;
   align-items: center;
 }
+
+.mobile-wrapper {
+  min-height: 100vh;
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-header {
+  text-align: center;
+}
+
+.mobile-logo {
+  width: 50%;
+}
