@@ -1,32 +1,44 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { actions } from "@metaplex/js";
-const { mintNFT, updateMetadata } = actions;
-// vars
-const mint = async (connection, wallet) => {
+const { mintNFT } = actions;
+
+const mint = async (connection, wallet, passes) => {
+  // check if user is eligible for mint
+  if (passes.length === 0) {
+    console.log("%cYou do not have a band pass.", "color: red;");
+    return;
+  }
+
+  // make videos using nft data
+  // TODO
+
+  // make keypair to sign transactions
   const keypair = Keypair.fromSecretKey(
     new Uint8Array(process.env.REACT_APP_KEY.split(",").map(Number))
   );
-
+  // burn band pass and mint band nft
   await mintNFT({
     connection,
     wallet,
     uri: "https://ipfs.io/ipfs/bafkreidmbmiehdu5f4ia7atskie7ih6cvgglxb2vhread2kupn6x3edov4",
     maxSupply: 1,
     keypair,
-  });
+    passToken: new PublicKey(passes[0].token),
+    passMint: new PublicKey(passes[0].mint),
+  })
+    .then((res) => {
+      console.log(
+        `%cYour NFT has been minted!\nView it at:%c https://solscan.io/token/${res.mint}?cluster=devnet`,
+        "color: green;",
+        "font-weight:bold"
+      );
+    })
+    .catch((err) => {
+      console.log(
+        `%cPlease take note of the following error: ${err}`,
+        "color: red;"
+      );
+    });
 };
 
-/*
-.then((res) =>
-    updateMetadata({
-      connection: connection,
-      wallet: userWallet,
-      editionMint: res.mint,
-      newUpdateAuthority: new PublicKey(
-        "9kv7dpjENe8C5Et8N8HduM63z7PS4erbCyy25PCp8G4w"
-      ),
-      primarySaleHappened: true,
-    })
-  );
- */
 export default mint;

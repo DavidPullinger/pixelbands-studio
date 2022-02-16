@@ -14,6 +14,8 @@ import play_btn from "../../assets/playbutton.png";
 import coming_soon from "../../assets/comingsoon.png";
 import pause_btn from "../../assets/pausebutton.png";
 import mint from "../../controllers/mintBands";
+import findAssociatedTokenAddress from "../../controllers/findAssociatedTokenAccount";
+import { PublicKey } from "@solana/web3.js";
 
 function NFTContainer() {
   const { connection } = useConnection();
@@ -21,6 +23,7 @@ function NFTContainer() {
   const { publicKey } = wallet;
   const [fetching, setFetching] = useState(false);
   const [NFTs, setNFTs] = useState([]);
+  const [passes, setPasses] = useState([]);
   const [numLoaded, setNumLoaded] = useState(0);
   const incrLoaded = () => {
     setNumLoaded(numLoaded + 1);
@@ -31,6 +34,8 @@ function NFTContainer() {
   const [currentBass, setCurrentBass] = useState(null);
   const [currentPiano, setCurrentPiano] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [loopTimer, setLoopTimer] = useState(null);
+
   const flickityOptions = {
     cellAlign: "center",
     groupCells: true,
@@ -61,7 +66,7 @@ function NFTContainer() {
     NFTs.forEach((item) => {
       if (
         item.updateAuthority === "9kv7dpjENe8C5Et8N8HduM63z7PS4erbCyy25PCp8G4w"
-      )
+      ) {
         fetch(item.data.uri)
           .then((res) => {
             return res.json();
@@ -78,6 +83,22 @@ function NFTContainer() {
               },
             ]);
           });
+      } else if (
+        item.updateAuthority === "DFUhTiYEYKNJ6nd5pFbnKx6XGSvBSMQUHj8ThMJ4ct9F"
+      ) {
+        findAssociatedTokenAddress(
+          wallet.publicKey,
+          new PublicKey(item.mint)
+        ).then((res) =>
+          setPasses((passes) => [
+            ...passes,
+            {
+              mint: item.mint,
+              token: res.toString(),
+            },
+          ])
+        );
+      }
     });
   };
 
@@ -373,13 +394,50 @@ function NFTContainer() {
     );
   };
 
+  function PauseableTimeout(fn, delay) {
+    let trigger_time = Date.now() + delay;
+    let remaining_time = delay;
+    let mainTimer;
+
+    const pause = () => {
+      clearTimeout(mainTimer);
+      remaining_time = trigger_time - Date.now();
+    };
+
+    const resume = () => {
+      mainTimer = setTimeout(fn, remaining_time);
+      trigger_time = Date.now() + remaining_time;
+    };
+
+    const cancel = () => {
+      clearTimeout(mainTimer);
+    };
+
+    mainTimer = setTimeout(fn, delay);
+    return { cancel: cancel, pause: pause, resume: resume };
+  }
+
   const resetMusic = () => {
+    loopTimer?.cancel();
+    setLoopTimer(null);
     let videos = Array.from(document.querySelectorAll("video")).filter(
       (v) => v.className === "video active"
     );
     videos.forEach((v) => {
       v.currentTime = 0;
     });
+  };
+
+  const loopMusic = () => {
+    let videos = Array.from(document.querySelectorAll("video")).filter(
+      (v) => v.className === "video active"
+    );
+    videos.forEach((v) => {
+      v.currentTime = 0;
+    });
+    // start new timer
+    let x = new PauseableTimeout(loopMusic, 25 * 1000);
+    setLoopTimer(x);
   };
 
   const toggleMusicPlay = () => {
@@ -410,6 +468,13 @@ function NFTContainer() {
     videos.forEach((v) => {
       v.play();
     });
+    // start or resume timer to loop songs
+    if (loopTimer) {
+      loopTimer.resume();
+    } else {
+      let x = new PauseableTimeout(loopMusic, 25 * 1000);
+      setLoopTimer(x);
+    }
     return true;
   };
 
@@ -420,6 +485,8 @@ function NFTContainer() {
     videos.forEach((v) => {
       v.pause();
     });
+    // pause timer to loop songs
+    loopTimer.pause();
   };
 
   return publicKey ? (
@@ -452,7 +519,7 @@ function NFTContainer() {
                 document.getElementById("soon").style.opacity = 0;
                 document.getElementById("mint").style.opacity = 1;
               }}
-              onClick={() => mint(connection, wallet)}
+              onClick={() => mint(connection, wallet, passes)}
             >
               <img id="mint" src={mint_btn} alt="mint btn" className="btn" />
               <img

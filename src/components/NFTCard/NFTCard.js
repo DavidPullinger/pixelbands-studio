@@ -18,7 +18,7 @@ function NFTCard(props) {
     }
   };
 
-  const { name, url } = props.bandMember || {};
+  const { name, url, role } = props.bandMember || {};
   return (
     <div onClick={props.onClick || null} className="grid-item-wrapper">
       {!props.redirect ? (
@@ -36,6 +36,7 @@ function NFTCard(props) {
               preload="auto"
               loop
               src={url}
+              id={role}
             ></video>
           </div>
           {props.controls ? (

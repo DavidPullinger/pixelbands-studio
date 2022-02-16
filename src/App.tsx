@@ -20,6 +20,7 @@ import { clusterApiUrl } from "@solana/web3.js";
 import React, { FC, ReactNode, useEffect, useMemo } from "react";
 // component imports
 const NFTContainer = require("./components/NFTContainer/NFTContainer.js");
+const VolumeSlider = require("./components/VolumeSlider/VolumeSlider.js");
 /// top left
 import light_button from "./assets/top-left/light-button.png";
 import offlight_button from "./assets/top-left/offlight-button.png";
@@ -31,12 +32,6 @@ import long_rect from "./assets/top-left/long-rect.png";
 /// top right
 import horizontal_slider from "./assets/top-right/horizontal-slider.png";
 import squares from "./assets/top-right/squares.png";
-/// bottom left
-import meter from "./assets/bottom-left/meter.png";
-import slider1 from "./assets/bottom-left/slider1.png";
-import slider2 from "./assets/bottom-left/slider2.png";
-import slider3 from "./assets/bottom-left/slider3.png";
-import slider4 from "./assets/bottom-left/slider4.png";
 /// bottom right
 import dots from "./assets/bottom-right/dots-4.png";
 import logo from "./assets/logo.png";
@@ -62,7 +57,7 @@ export const App: FC = () => {
 
 const Context: FC<{ children: ReactNode }> = ({ children }) => {
   // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'.
-  const network = WalletAdapterNetwork.Devnet;
+  const network = WalletAdapterNetwork.Mainnet;
 
   // You can also provide a custom RPC endpoint.
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
@@ -98,7 +93,9 @@ const Content: FC = () => {
       <div className="App">
         <Navigation />
         <div className="mid-wrapper">
-          <BottomLeft />
+          <div className="left">
+            <BottomLeft />
+          </div>
           <NFTContainer />
           <BottomRight />
         </div>
@@ -155,22 +152,13 @@ function TopRight() {
 
 function BottomLeft() {
   return (
-    <div className="decor-bottom-left">
-      <div className="meter-slider">
-        <img src={meter} alt="meter" />
-        <img src={slider1} alt="slider" />
-      </div>
-      <div className="meter-slider">
-        <img src={meter} alt="meter" />
-        <img src={slider2} alt="slider" />
-      </div>
-      <div className="meter-slider">
-        <img src={meter} alt="meter" />
-        <img src={slider3} alt="slider" />
-      </div>
-      <div className="meter-slider">
-        <img src={meter} alt="meter" />
-        <img src={slider4} alt="slider" />
+    <div>
+      <h2>Volume</h2>
+      <div className="decor-bottom-left">
+        <VolumeSlider role="Drums" id="drummer-volume" />
+        <VolumeSlider role="Guitar" id="guitar-volume" />
+        <VolumeSlider role="Bass" id="bass-volume" />
+        <VolumeSlider role="Keyboard" id="keys-volume" />
       </div>
     </div>
   );

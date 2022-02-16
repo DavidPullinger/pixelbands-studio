@@ -1,0 +1,29 @@
+.meter-slider {
+  display: grid;
+  gap: 1vh;
+}
+
+.slider {
+  position: relative;
+}
+
+.slider > img {
+  position: absolute;
+}
+
+.volume {
+  position: relative;
+  overflow: hidden;
+}
+
+.volume > img {
+  position: absolute;
+}
+
+.meter {
+  z-index: 10;
+}
+
+.emoji {
+  text-align: center;
+}

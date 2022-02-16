@@ -86,14 +86,9 @@ img {
 }
 
 .decor-bottom-left {
-  display: flex;
-  align-items: flex-end;
-}
-
-.meter-slider {
-  display: flex;
-  flex-direction: column;
-  gap: 1vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 5px;
 }
 
 .decor-bottom-right {
@@ -134,19 +129,8 @@ img {
   align-items: center;
 }
 
-.mobile-wrapper {
-  min-height: 100vh;
-  flex-direction: column;
+.left {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-}
-
-.mobile-header {
-  text-align: center;
-}
-
-.mobile-logo {
-  width: 50%;
+  flex-direction: column;
+  justify-content: flex-end;
 }

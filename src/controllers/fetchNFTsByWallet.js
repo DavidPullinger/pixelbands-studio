@@ -10,6 +10,7 @@ export const fetchNFTsOwnedByWallet = async (userWallet, connection) => {
     connection,
     userWallet
   );
+
   const accountsWithAmount = accounts
     .map(({ data }) => data)
     .filter(({ amount }) => amount?.toNumber() > 0);
