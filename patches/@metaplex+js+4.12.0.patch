@@ -1,21 +1,107 @@
 diff --git a/node_modules/@metaplex/js/lib/index.browser.esm.js b/node_modules/@metaplex/js/lib/index.browser.esm.js
-index b9b004d..d1fd6f7 100644
+index b9b004d..a6f6a4d 100644
 --- a/node_modules/@metaplex/js/lib/index.browser.esm.js
 +++ b/node_modules/@metaplex/js/lib/index.browser.esm.js
-@@ -501,21 +501,31 @@ const initStoreV2 = ({ connection, wallet, settingsUri = null, isPublic = true,
+@@ -136,8 +136,8 @@ class Storage {
+ }
+ 
+ var Storage$1 = /*#__PURE__*/Object.freeze({
+-  __proto__: null,
+-  Storage: Storage
++    __proto__: null,
++    Storage: Storage
+ });
+ 
+ var ChainId;
+@@ -202,8 +202,8 @@ class NodeWallet {
+ const getFileHash = (file) => __awaiter(void 0, void 0, void 0, function* () { return Buffer$1.from(yield sha256(file.toString())); });
+ 
+ var crypto = /*#__PURE__*/Object.freeze({
+-  __proto__: null,
+-  getFileHash: getFileHash
++    __proto__: null,
++    getFileHash: getFileHash
+ });
+ 
+ const lookup = (url) => __awaiter(void 0, void 0, void 0, function* () {
+@@ -217,14 +217,14 @@ const lookup = (url) => __awaiter(void 0, void 0, void 0, function* () {
+ });
+ 
+ var metadata = /*#__PURE__*/Object.freeze({
+-  __proto__: null,
+-  lookup: lookup
++    __proto__: null,
++    lookup: lookup
+ });
+ 
+ var index$3 = /*#__PURE__*/Object.freeze({
+-  __proto__: null,
+-  Crypto: crypto,
+-  metadata: metadata
++    __proto__: null,
++    Crypto: crypto,
++    metadata: metadata
+ });
+ 
+ class PayForFiles extends Transaction {
+@@ -338,12 +338,12 @@ class MintTo extends Transaction {
+ }
+ 
+ var index$2 = /*#__PURE__*/Object.freeze({
+-  __proto__: null,
+-  PayForFiles: PayForFiles,
+-  CreateMint: CreateMint,
+-  CreateTokenAccount: CreateTokenAccount,
+-  CreateAssociatedTokenAccount: CreateAssociatedTokenAccount,
+-  MintTo: MintTo
++    __proto__: null,
++    PayForFiles: PayForFiles,
++    CreateMint: CreateMint,
++    CreateTokenAccount: CreateTokenAccount,
++    CreateAssociatedTokenAccount: CreateAssociatedTokenAccount,
++    MintTo: MintTo
+ });
+ 
+ function prepareTokenAccountAndMintTxs(connection, owner) {
+@@ -501,21 +501,56 @@ const initStoreV2 = ({ connection, wallet, settingsUri = null, isPublic = true,
      return { storeId, configId, txId };
  });
  
 -const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, void 0, void 0, function* () {
-+const mintNFT = ({ connection, wallet, uri, maxSupply, keypair, passToken, passMint, owner}) => __awaiter(void 0, void 0, void 0, function* () {
+-    const { mint, createMintTx, createAssociatedTokenAccountTx, mintToTx } = yield prepareTokenAccountAndMintTxs(connection, wallet.publicKey);
++const mintNFT = ({ connection, wallet, uri, maxSupply, keypair, passToken, passMint, owner, }) => __awaiter(void 0, void 0, void 0, function* () {
 +    // burn transaction
-+    const tx = new Transaction({ feePayer: wallet.publicKey }).add(Token.createBurnInstruction(TOKEN_PROGRAM_ID, passMint, passToken, owner !== null && owner !== void 0 ? owner : wallet.publicKey, [], 1));
-+    tx.add(Token.createCloseAccountInstruction(TOKEN_PROGRAM_ID, passToken, wallet.publicKey, owner !== null && owner !== void 0 ? owner : wallet.publicKey, []));
++    const tx = new Transaction({ feePayer: wallet.publicKey }).add(
++        Token.createBurnInstruction(
++            TOKEN_PROGRAM_ID,
++            passMint,
++            passToken,
++            owner !== null && owner !== void 0 ? owner : wallet.publicKey,
++            [],
++            1
++        )
++    );
++    tx.add(
++        Token.createCloseAccountInstruction(
++            TOKEN_PROGRAM_ID,
++            passToken,
++            wallet.publicKey,
++            owner !== null && owner !== void 0 ? owner : wallet.publicKey,
++            []
++        )
++    );
 +    // mint transactions
-     const { mint, createMintTx, createAssociatedTokenAccountTx, mintToTx } = yield prepareTokenAccountAndMintTxs(connection, wallet.publicKey);
++    const { mint, createMintTx, createAssociatedTokenAccountTx, mintToTx } =
++        yield prepareTokenAccountAndMintTxs(connection, wallet.publicKey);
      const metadataPDA = yield Metadata.getPDA(mint.publicKey);
      const editionPDA = yield MasterEdition.getPDA(mint.publicKey);
-     const { name, symbol, seller_fee_basis_points, properties: { creators }, } = yield lookup(uri);
+-    const { name, symbol, seller_fee_basis_points, properties: { creators }, } = yield lookup(uri);
++    const {
++        name,
++        symbol,
++        seller_fee_basis_points,
++        properties: { creators },
++    } = yield lookup(uri);
      const creatorsData = creators.reduce((memo, { address, share }) => {
 -        const verified = address === wallet.publicKey.toString();
 -        const creator = new Creator({
@@ -28,40 +114,168 @@ index b9b004d..d1fd6f7 100644
          });
          memo = [...memo, creator];
          return memo;
-     }, []); 
-+    creatorsData.push(new Creator({
-+        address: keypair.publicKey.toBase58(),
-+        share: 0,
-+        verified: 1,
-+    })) // add our wallet that can sign
-+    
+     }, []);
++    creatorsData.push(
++        new Creator({
++            address: keypair.publicKey.toBase58(),
++            share: 0,
++            verified: 1,
++        })
++    ); // add our wallet that can sign
++
      const metadataData = new MetadataDataData({
          name,
          symbol,
-@@ -528,22 +538,23 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
-     }, {
-         metadata: metadataPDA,
-         metadataData,
--        updateAuthority: wallet.publicKey,
-+        updateAuthority: keypair.publicKey, // use our wallet that can sign
-         mint: mint.publicKey,
-         mintAuthority: wallet.publicKey,
+@@ -523,27 +558,34 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
+         sellerFeeBasisPoints: seller_fee_basis_points,
+         creators: creatorsData,
      });
-     const masterEditionTx = new CreateMasterEdition({ feePayer: wallet.publicKey }, {
-         edition: editionPDA,
-         metadata: metadataPDA,
+-    const createMetadataTx = new CreateMetadata({
+-        feePayer: wallet.publicKey,
+-    }, {
+-        metadata: metadataPDA,
+-        metadataData,
 -        updateAuthority: wallet.publicKey,
-+        updateAuthority: keypair.publicKey, // use our wallet that can sign
-         mint: mint.publicKey,
-         mintAuthority: wallet.publicKey,
-         maxSupply: maxSupply || maxSupply === 0 ? new BN(maxSupply) : null,
-     });
+-        mint: mint.publicKey,
+-        mintAuthority: wallet.publicKey,
+-    });
+-    const masterEditionTx = new CreateMasterEdition({ feePayer: wallet.publicKey }, {
+-        edition: editionPDA,
+-        metadata: metadataPDA,
+-        updateAuthority: wallet.publicKey,
+-        mint: mint.publicKey,
+-        mintAuthority: wallet.publicKey,
+-        maxSupply: maxSupply || maxSupply === 0 ? new BN(maxSupply) : null,
+-    });
++    const createMetadataTx = new CreateMetadata(
++        {
++            feePayer: wallet.publicKey,
++        },
++        {
++            metadata: metadataPDA,
++            metadataData,
++            updateAuthority: keypair.publicKey, // use our wallet that can sign
++            mint: mint.publicKey,
++            mintAuthority: wallet.publicKey,
++        }
++    );
++    const masterEditionTx = new CreateMasterEdition(
++        { feePayer: wallet.publicKey },
++        {
++            edition: editionPDA,
++            metadata: metadataPDA,
++            updateAuthority: keypair.publicKey, // use our wallet that can sign
++            mint: mint.publicKey,
++            mintAuthority: wallet.publicKey,
++            maxSupply: maxSupply || maxSupply === 0 ? new BN(maxSupply) : null,
++        }
++    );
      const txId = yield sendTransaction({
          connection,
 -        signers: [mint],
-+        signers: [mint,keypair],
++        signers: [mint, keypair],
          txs: [
 +            tx,
              createMintTx,
              createMetadataTx,
              createAssociatedTokenAccountTx,
+@@ -560,6 +602,7 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
+     };
+ });
+ 
++
+ const mintEditionFromMaster = ({ connection, wallet, masterEditionMint, updateAuthority } = {}) => __awaiter(void 0, void 0, void 0, function* () {
+     const masterPDA = yield MasterEdition.getPDA(masterEditionMint);
+     const masterMetaPDA = yield Metadata.getPDA(masterEditionMint);
+@@ -1430,50 +1473,50 @@ const initAuction = ({ connection, wallet, vault, auctionSettings, }) => __await
+ });
+ 
+ var index$1 = /*#__PURE__*/Object.freeze({
+-  __proto__: null,
+-  addTokensToVault: addTokensToVault,
+-  sendTransaction: sendTransaction,
+-  initStore: initStore,
+-  initStoreV2: initStoreV2,
+-  mintNFT: mintNFT,
+-  mintEditionFromMaster: mintEditionFromMaster,
+-  createMetadata: createMetadata,
+-  createMasterEdition: createMasterEdition,
+-  signMetadata: signMetadata,
+-  updateMetadata: updateMetadata,
+-  cancelBid: cancelBid,
+-  getCancelBidTransactions: getCancelBidTransactions,
+-  placeBid: placeBid,
+-  redeemFullRightsTransferBid: redeemFullRightsTransferBid,
+-  getRedeemFRTBidTransactions: getRedeemFRTBidTransactions,
+-  getBidRedemptionPDA: getBidRedemptionPDA,
+-  redeemPrintingV2Bid: redeemPrintingV2Bid,
+-  getRedeemPrintingV2BidTransactions: getRedeemPrintingV2BidTransactions,
+-  getEditionOffset: getEditionOffset,
+-  redeemParticipationBidV3: redeemParticipationBidV3,
+-  isEligibleForParticipationPrize: isEligibleForParticipationPrize,
+-  claimBid: claimBid,
+-  getClaimBidTransactions: getClaimBidTransactions,
+-  instantSale: instantSale,
+-  burnToken: burnToken,
+-  sendToken: sendToken,
+-  prepareTokenAccountAndMintTxs: prepareTokenAccountAndMintTxs,
+-  createWrappedAccountTxs: createWrappedAccountTxs,
+-  createApproveTxs: createApproveTxs,
+-  closeVault: closeVault,
+-  createExternalPriceAccount: createExternalPriceAccount,
+-  createVault: createVault,
+-  initAuction: initAuction
++    __proto__: null,
++    addTokensToVault: addTokensToVault,
++    sendTransaction: sendTransaction,
++    initStore: initStore,
++    initStoreV2: initStoreV2,
++    mintNFT: mintNFT,
++    mintEditionFromMaster: mintEditionFromMaster,
++    createMetadata: createMetadata,
++    createMasterEdition: createMasterEdition,
++    signMetadata: signMetadata,
++    updateMetadata: updateMetadata,
++    cancelBid: cancelBid,
++    getCancelBidTransactions: getCancelBidTransactions,
++    placeBid: placeBid,
++    redeemFullRightsTransferBid: redeemFullRightsTransferBid,
++    getRedeemFRTBidTransactions: getRedeemFRTBidTransactions,
++    getBidRedemptionPDA: getBidRedemptionPDA,
++    redeemPrintingV2Bid: redeemPrintingV2Bid,
++    getRedeemPrintingV2BidTransactions: getRedeemPrintingV2BidTransactions,
++    getEditionOffset: getEditionOffset,
++    redeemParticipationBidV3: redeemParticipationBidV3,
++    isEligibleForParticipationPrize: isEligibleForParticipationPrize,
++    claimBid: claimBid,
++    getClaimBidTransactions: getClaimBidTransactions,
++    instantSale: instantSale,
++    burnToken: burnToken,
++    sendToken: sendToken,
++    prepareTokenAccountAndMintTxs: prepareTokenAccountAndMintTxs,
++    createWrappedAccountTxs: createWrappedAccountTxs,
++    createApproveTxs: createApproveTxs,
++    closeVault: closeVault,
++    createExternalPriceAccount: createExternalPriceAccount,
++    createVault: createVault,
++    initAuction: initAuction
+ });
+ 
+ var index = /*#__PURE__*/Object.freeze({
+-  __proto__: null,
+-  transactions: index$2,
+-  auction: mplAuction,
+-  core: mplCore,
+-  metaplex: mplMetaplex,
+-  metadata: mplTokenMetadata,
+-  vault: mplTokenVault
++    __proto__: null,
++    transactions: index$2,
++    auction: mplAuction,
++    core: mplCore,
++    metaplex: mplMetaplex,
++    metadata: mplTokenMetadata,
++    vault: mplTokenVault
+ });
+ 
+ export { ArweaveStorage, ChainId, Coingecko, Connection, Currency, ENV, NodeWallet, index$1 as actions, index as programs, Storage$1 as storage, index$2 as transactions, index$3 as utils };
