@@ -16,7 +16,7 @@ function Mint(props) {
   let navigate = useNavigate();
 
   const bgBucketUrl =
-    "https://ipfs.io/ipfs/bafybeihdzlcptccyw7stgexxjpvdkypimchw4n2gx2hvpmynqyp4rumj64/";
+    "https://ipfs.io/ipfs/bafybeidqcjzp7vl3eb57riebgjxulgytew4nzc2lgpvdexxs43nq4ygyha/";
   const bannerBucketUrl =
     "https://ipfs.io/ipfs/bafybeigxjthygqtuqhnndno4et3dptdmmsujdvz7ssdhucfy6tn4se7ixi/";
   const flickityOptions = {
@@ -50,7 +50,7 @@ function Mint(props) {
           key={vid}
           onClick={() => setCurrentBackground(vid)}
         >
-          <video className="w-80 pb-8" src={bgBucketUrl + vid + ".mp4"}></video>
+          <img className="w-80 pb-8" src={bgBucketUrl + vid + ".gif"} />
           <p>{vid}</p>
         </div>
       );
