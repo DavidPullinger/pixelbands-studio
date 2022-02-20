@@ -11,19 +11,17 @@ import bassborder from "../../assets/bassborder.png";
 import pianoborder from "../../assets/pianoborder.png";
 import mint_btn from "../../assets/mintbutton.png";
 import play_btn from "../../assets/playbutton.png";
-import coming_soon from "../../assets/comingsoon.png";
 import pause_btn from "../../assets/pausebutton.png";
-import mint from "../../controllers/mintBands";
 import findAssociatedTokenAddress from "../../controllers/findAssociatedTokenAccount";
 import { PublicKey } from "@solana/web3.js";
+import { useNavigate } from "react-router-dom";
 
-function NFTContainer() {
+function NFTContainer(props) {
   const { connection } = useConnection();
   const wallet = useWallet();
   const { publicKey } = wallet;
   const [fetching, setFetching] = useState(false);
   const [NFTs, setNFTs] = useState([]);
-  const [passes, setPasses] = useState([]);
   const [numLoaded, setNumLoaded] = useState(0);
   const incrLoaded = () => {
     setNumLoaded(numLoaded + 1);
@@ -35,6 +33,13 @@ function NFTContainer() {
   const [currentPiano, setCurrentPiano] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loopTimer, setLoopTimer] = useState(null);
+  const { passes, setPasses } = props;
+
+  let guitar = [];
+  let bass = [];
+  let drums = [];
+  let piano = [];
+  let navigate = useNavigate();
 
   const flickityOptions = {
     cellAlign: "center",
@@ -53,6 +58,34 @@ function NFTContainer() {
       setFetching(false);
       fetchNFTData(data);
     });
+    // ! temporary
+    setNFTs([
+      {
+        name: "Pixel Bands #7",
+        url: "https://bafybeignrngok4d3rwzjyuuewnxomlpdm5kwlz44cz7mgvzbwm2273m5v4.ipfs.dweb.link/7.mp4",
+        role: "Bass",
+      },
+      {
+        name: "Pixel Bands #19",
+        url: "https://bafybeibhaazwq4grmxeixvgdrnmbb6rstmhp2h5ggngbwzawe7uzhm2fh4.ipfs.dweb.link/19.mp4",
+        role: "Keyboard",
+      },
+      {
+        name: "Pixel Bands #680",
+        url: "https://bafybeihvrn6sei27jv7gzx2joitfttdno3hwiob2bafjjj52rhot64rpy4.ipfs.dweb.link/680.mp4",
+        role: "Guitar",
+      },
+      {
+        name: "Pixel Bands #1",
+        url: "https://bafybeignrngok4d3rwzjyuuewnxomlpdm5kwlz44cz7mgvzbwm2273m5v4.ipfs.dweb.link/1.mp4",
+        role: "Guitar",
+      },
+      {
+        name: "Pixel Bands #4",
+        url: "https://bafybeignrngok4d3rwzjyuuewnxomlpdm5kwlz44cz7mgvzbwm2273m5v4.ipfs.dweb.link/4.mp4",
+        role: "Drums",
+      },
+    ]);
   };
 
   useEffect(() => {
@@ -61,6 +94,15 @@ function NFTContainer() {
     }
     // eslint-disable-next-line
   }, [publicKey]);
+
+  useEffect(() => {
+    window.onkeydown = function (event) {
+      if (event.keyCode === 32) {
+        event.preventDefault();
+        toggleMusicPlay();
+      }
+    };
+  });
 
   const fetchNFTData = (NFTs) => {
     NFTs.forEach((item) => {
@@ -122,11 +164,6 @@ function NFTContainer() {
   };
 
   const makeNFTCards = () => {
-    let guitar = [];
-    let bass = [];
-    let drums = [];
-    let piano = [];
-
     NFTs.forEach((item) => {
       switch (item.role) {
         case "Guitar":
@@ -390,8 +427,54 @@ function NFTContainer() {
             {dropDownItems(latestDropdown?.id)}
           </Flickity>
         </div>
+        {
+          // for mint confirmation}
+        }
+        <div
+          id="mint-confirmation"
+          className="nft-dropdown nft-dropdown-hidden behind-all"
+        >
+          <p>
+            Please note that the Pixel Band Members you have selected in the
+            studio
+            <br />
+            (and their respective volumes) will be used to mint your band.
+          </p>
+          <div className="confirmation-buttons">
+            <button className="border-2" onClick={goToMint}>
+              Next Step
+            </button>
+            <button className="border-2" onClick={hideMintConfirmation}>
+              Cancel
+            </button>
+          </div>
+          <p id="mint-error"></p>
+        </div>
       </div>
     );
+  };
+
+  const goToMint = () => {
+    if (
+      guitar.length > 0 &&
+      bass.length > 0 &&
+      piano.length > 0 &&
+      drums.length > 0
+    ) {
+      if (passes.length > 0) {
+        props.setBandMembers([
+          currentBass ?? bass[0],
+          currentDrum ?? drums[0],
+          currentGuitar ?? guitar[0],
+          currentPiano ?? piano[0],
+        ]);
+        navigate("/mint");
+      } else {
+        showMintError("You need a band pass to mint your band");
+      }
+    } else {
+      showMintError("You do not have enough band members");
+    }
   };
 
   function PauseableTimeout(fn, delay) {
@@ -489,6 +572,30 @@ function NFTContainer() {
     loopTimer.pause();
   };
 
+  const confirmMint = () => {
+    //mint(connection, wallet, passes)
+    document.getElementById("mint-confirmation").className =
+      "nft-dropdown nft-dropdown-visible";
+  };
+
+  const showMintError = (err) => {
+    document.getElementById("mint-error").innerHTML = err;
+    setTimeout(() => {
+      document.getElementById("mint-error").innerHTML = "";
+    }, 2000);
+  };
+
+  const hideMintConfirmation = () => {
+    document.getElementById("mint-confirmation").className =
+      "nft-dropdown nft-dropdown-hidden";
+    setTimeout(
+      () =>
+        (document.getElementById("mint-confirmation").className =
+          "nft-dropdown nft-dropdown-hidden behind-all"),
+      200
+    );
+  };
+
   return publicKey ? (
     <div className="wrapper">
       <p className="intro">
@@ -509,26 +616,12 @@ function NFTContainer() {
               src={play_btn}
               alt="play btn"
             />
-            <div
-              className="btn-swapper"
-              onMouseEnter={() => {
-                document.getElementById("mint").style.opacity = 0;
-                document.getElementById("soon").style.opacity = 1;
-              }}
-              onMouseLeave={() => {
-                document.getElementById("soon").style.opacity = 0;
-                document.getElementById("mint").style.opacity = 1;
-              }}
-              onClick={() => mint(connection, wallet, passes)}
-            >
-              <img id="mint" src={mint_btn} alt="mint btn" className="btn" />
-              <img
-                id="soon"
-                src={coming_soon}
-                alt="coming soon"
-                className="hidden btn"
-              />
-            </div>
+            <img
+              id="mint"
+              onClick={confirmMint}
+              src={mint_btn}
+              alt="mint btn"
+            />
           </div>
         </div>
       )}

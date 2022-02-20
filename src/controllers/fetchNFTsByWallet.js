@@ -3,6 +3,8 @@
 import { TokenAccount } from "@metaplex-foundation/mpl-core/";
 import { MetadataData } from "@metaplex-foundation/mpl-token-metadata/";
 import { PublicKey } from "@solana/web3.js";
+import MemberHashList from "./MemberHashList.json";
+import BandPassHashList from "./BandPassHashList.json";
 
 export const fetchNFTsOwnedByWallet = async (userWallet, connection) => {
   // get users token accounts
@@ -13,7 +15,12 @@ export const fetchNFTsOwnedByWallet = async (userWallet, connection) => {
 
   const accountsWithAmount = accounts
     .map(({ data }) => data)
-    .filter(({ amount }) => amount?.toNumber() > 0);
+    .filter(
+      ({ amount, mint }) =>
+        amount?.toNumber() > 0 &&
+        (MemberHashList.includes(mint.toBase58()) ||
+          BandPassHashList.includes(mint.toBase58()))
+    );
 
   // get mint addr and use it to get metadata address
   let nftMintAddresses = accountsWithAmount.map(({ mint }) => mint);

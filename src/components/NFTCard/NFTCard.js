@@ -8,7 +8,7 @@ function NFTCard(props) {
       case "Guitarist":
         return "🎸";
       case "Bassist":
-        return "🪕";
+        return "🔊";
       case "Drummer":
         return "🥁";
       case "Pianist":

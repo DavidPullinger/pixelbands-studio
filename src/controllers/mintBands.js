@@ -2,7 +2,7 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import { actions } from "@metaplex/js";
 const { mintNFT } = actions;
 
-const mint = async (connection, wallet, passes) => {
+const mint = async (connection, wallet, passes, metadata) => {
   // check if user is eligible for mint
   if (passes.length === 0) {
     console.log("%cYou do not have a band pass.", "color: red;");
@@ -16,6 +16,7 @@ const mint = async (connection, wallet, passes) => {
   const keypair = Keypair.fromSecretKey(
     new Uint8Array(process.env.REACT_APP_KEY.split(",").map(Number))
   );
+  console.log(passes[0].token);
   // burn band pass and mint band nft
   await mintNFT({
     connection,

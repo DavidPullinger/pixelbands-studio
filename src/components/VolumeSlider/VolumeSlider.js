@@ -3,6 +3,7 @@ import meter from "../../assets/bottom-left/meter.png";
 import maxVolume from "../../assets/bottom-left/maxVolume.png";
 import volumeSlider from "../../assets/bottom-left/volumeSlider.png";
 import volumeHandle from "../../assets/bottom-left/volumeHandle.png";
+import { useEffect } from "react";
 var jquery = require("jquery");
 window.$ = window.jQuery = jquery; // notice the definition of global variables here
 require("jquery-ui-dist/jquery-ui.js");
@@ -13,7 +14,7 @@ function VolumeSlider({ id, role }) {
       case "Guitar":
         return "🎸";
       case "Bass":
-        return "🪕";
+        return "🔊";
       case "Drums":
         return "🥁";
       case "Keyboard":
@@ -50,6 +51,8 @@ function VolumeSlider({ id, role }) {
           //value = Math.abs(parseInt(knob.css("top")) / height - 1);
           value = parseInt(knob.css("bottom")) / height;
           value = Math.round(value * 100) / 100;
+          // store volume
+          sessionStorage.setItem(role, value);
           // set volume according to value
           let video = $(`#${role}`);
           if (video.length) {

@@ -17,10 +17,12 @@ import {
   TorusWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 import { clusterApiUrl } from "@solana/web3.js";
-import React, { FC, ReactNode, useEffect, useMemo } from "react";
+import React, { FC, ReactNode, useMemo, useState } from "react";
+
 // component imports
 const NFTContainer = require("./components/NFTContainer/NFTContainer.js");
 const VolumeSlider = require("./components/VolumeSlider/VolumeSlider.js");
+const Mint = require("./pages/Mint.js");
 /// top left
 import light_button from "./assets/top-left/light-button.png";
 import offlight_button from "./assets/top-left/offlight-button.png";
@@ -37,6 +39,7 @@ import dots from "./assets/bottom-right/dots-4.png";
 import logo from "./assets/logo.png";
 // style imports
 import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 export const App: FC = () => {
   const isMobile =
@@ -88,21 +91,57 @@ const Context: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 const Content: FC = () => {
+  const [bandMembers, setBandMembers] = useState(null);
+  const [passes, setPasses] = useState([]);
+
   return (
-    <div>
-      <div className="App">
-        <Navigation />
-        <div className="mid-wrapper">
-          <div className="left">
-            <BottomLeft />
-          </div>
-          <NFTContainer />
-          <BottomRight />
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Home
+              passes={passes}
+              setPasses={setPasses}
+              setBandMembers={setBandMembers}
+              bandMembers={bandMembers}
+            />
+          }
+        />
+        <Route
+          path="/mint"
+          element={
+            <Mint
+              passes={passes}
+              setPasses={setPasses}
+              bandMembers={bandMembers}
+            />
+          }
+        />
+      </Routes>
+    </Router>
+  );
+};
+
+function Home({ setBandMembers, bandMembers, passes, setPasses }: any) {
+  return (
+    <div className="App">
+      <Navigation />
+      <div className="mid-wrapper">
+        <div className="left">
+          <BottomLeft />
         </div>
+        <NFTContainer
+          setBandMembers={setBandMembers}
+          bandMembers={bandMembers}
+          passes={passes}
+          setPasses={setPasses}
+        />
+        <BottomRight />
       </div>
     </div>
   );
-};
+}
 
 function Navigation() {
   return (
