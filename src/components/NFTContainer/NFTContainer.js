@@ -15,6 +15,8 @@ import pause_btn from "../../assets/pausebutton.png";
 import findAssociatedTokenAddress from "../../controllers/findAssociatedTokenAccount";
 import { PublicKey } from "@solana/web3.js";
 import { useNavigate } from "react-router-dom";
+import continue_btn from "../../assets/continuebutton.png";
+import cancel_btn from "../../assets/cancelbutton.png";
 
 function NFTContainer(props) {
   const { connection } = useConnection();
@@ -34,6 +36,7 @@ function NFTContainer(props) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [loopTimer, setLoopTimer] = useState(null);
   const { passes, setPasses } = props;
+  useEffect(() => sessionStorage.clear(), []);
 
   let guitar = [];
   let bass = [];
@@ -59,33 +62,6 @@ function NFTContainer(props) {
       fetchNFTData(data);
     });
     // ! temporary
-    setNFTs([
-      {
-        name: "Pixel Bands #7",
-        url: "https://bafybeignrngok4d3rwzjyuuewnxomlpdm5kwlz44cz7mgvzbwm2273m5v4.ipfs.dweb.link/7.mp4",
-        role: "Bass",
-      },
-      {
-        name: "Pixel Bands #19",
-        url: "https://bafybeibhaazwq4grmxeixvgdrnmbb6rstmhp2h5ggngbwzawe7uzhm2fh4.ipfs.dweb.link/19.mp4",
-        role: "Keyboard",
-      },
-      {
-        name: "Pixel Bands #680",
-        url: "https://bafybeihvrn6sei27jv7gzx2joitfttdno3hwiob2bafjjj52rhot64rpy4.ipfs.dweb.link/680.mp4",
-        role: "Guitar",
-      },
-      {
-        name: "Pixel Bands #1",
-        url: "https://bafybeignrngok4d3rwzjyuuewnxomlpdm5kwlz44cz7mgvzbwm2273m5v4.ipfs.dweb.link/1.mp4",
-        role: "Guitar",
-      },
-      {
-        name: "Pixel Bands #4",
-        url: "https://bafybeignrngok4d3rwzjyuuewnxomlpdm5kwlz44cz7mgvzbwm2273m5v4.ipfs.dweb.link/4.mp4",
-        role: "Drums",
-      },
-    ]);
   };
 
   useEffect(() => {
@@ -98,7 +74,6 @@ function NFTContainer(props) {
   useEffect(() => {
     window.onkeydown = function (event) {
       if (event.keyCode === 32) {
-        event.preventDefault();
         toggleMusicPlay();
       }
     };
@@ -107,13 +82,19 @@ function NFTContainer(props) {
   const fetchNFTData = (NFTs) => {
     NFTs.forEach((item) => {
       if (
-        item.updateAuthority === "9kv7dpjENe8C5Et8N8HduM63z7PS4erbCyy25PCp8G4w"
+        item.updateAuthority ===
+          "9kv7dpjENe8C5Et8N8HduM63z7PS4erbCyy25PCp8G4w" ||
+        item.updateAuthority === "7BTxjtg2S3o1WCc7SLvA2BKKuSMN2vVFAu9vFx8Bfa38"
       ) {
         fetch(item.data.uri)
           .then((res) => {
             return res.json();
           })
-          .then((data) => {
+          .then(async (data) => {
+            const account = await findAssociatedTokenAddress(
+              wallet.publicKey,
+              new PublicKey(item.mint)
+            );
             setNFTs((NFTs) => [
               ...NFTs,
               {
@@ -122,11 +103,19 @@ function NFTContainer(props) {
                 role: data.attributes.find((el) => {
                   return el.trait_type === "Instrument";
                 }).value,
+                creator: item.data.creators.reduce(function (prev, current) {
+                  return prev.share > current.share ? prev : current;
+                }).address,
+                musician: data.attributes.find((el) => {
+                  return el.trait_type === "Musician";
+                }).value,
+                mint: item.mint,
+                account: account,
               },
             ]);
           });
       } else if (
-        item.updateAuthority === "DFUhTiYEYKNJ6nd5pFbnKx6XGSvBSMQUHj8ThMJ4ct9F"
+        item.updateAuthority === "BWGzSvjwpXBhK2GzaQd2upAehzGdEDzoyUULc8uubeFn"
       ) {
         findAssociatedTokenAddress(
           wallet.publicKey,
@@ -440,13 +429,19 @@ function NFTContainer(props) {
             <br />
             (and their respective volumes) will be used to mint your band.
           </p>
-          <div className="confirmation-buttons">
-            <button className="border-2" onClick={goToMint}>
-              Next Step
-            </button>
-            <button className="border-2" onClick={hideMintConfirmation}>
-              Cancel
-            </button>
+          <div className="confirmation-buttons w-1/3">
+            <img
+              className="squish"
+              onClick={goToMint}
+              src={continue_btn}
+              alt="continue btn"
+            />
+            <img
+              className="squish"
+              onClick={hideMintConfirmation}
+              src={cancel_btn}
+              alt="continue btn"
+            />
           </div>
           <p id="mint-error"></p>
         </div>
@@ -468,6 +463,7 @@ function NFTContainer(props) {
           currentGuitar ?? guitar[0],
           currentPiano ?? piano[0],
         ]);
+        loopTimer?.cancel();
         navigate("/mint");
       } else {
         showMintError("You need a band pass to mint your band");

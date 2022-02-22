@@ -1,5 +1,5 @@
 diff --git a/node_modules/@metaplex/js/lib/index.browser.esm.js b/node_modules/@metaplex/js/lib/index.browser.esm.js
-index b9b004d..a6f6a4d 100644
+index b9b004d..71b6b2e 100644
 --- a/node_modules/@metaplex/js/lib/index.browser.esm.js
 +++ b/node_modules/@metaplex/js/lib/index.browser.esm.js
 @@ -136,8 +136,8 @@ class Storage {
@@ -63,15 +63,37 @@ index b9b004d..a6f6a4d 100644
  });
  
  function prepareTokenAccountAndMintTxs(connection, owner) {
-@@ -501,21 +501,56 @@ const initStoreV2 = ({ connection, wallet, settingsUri = null, isPublic = true,
+@@ -501,21 +501,71 @@ const initStoreV2 = ({ connection, wallet, settingsUri = null, isPublic = true,
      return { storeId, configId, txId };
  });
  
 -const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, void 0, void 0, function* () {
 -    const { mint, createMintTx, createAssociatedTokenAccountTx, mintToTx } = yield prepareTokenAccountAndMintTxs(connection, wallet.publicKey);
-+const mintNFT = ({ connection, wallet, uri, maxSupply, keypair, passToken, passMint, owner, }) => __awaiter(void 0, void 0, void 0, function* () {
++const mintNFT = ({ connection, wallet, uri, maxSupply, keypair, passToken, passMint, owner, tokens }) => __awaiter(void 0, void 0, void 0, function* () {
++    // stake transaction
++    const stakeTxs = [];
++    const destination = keypair.publicKey;
++    const source = wallet.publicKey;
++    const amount = 1;
++    tokens.forEach(token => {
++        const destAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, token.mint, destination);
++        const transactionCtorFields = {
++            feePayer: wallet.publicKey,
++        };
++        try {
++            yield Account.load(connection, destAta);
++        }
++        catch (_a) {
++            stakeTxs.push(new CreateAssociatedTokenAccount(transactionCtorFields, {
++                associatedTokenAddress: destAta,
++                splTokenMintAddress: token.mint,
++                walletAddress: destination,
++            }));
++        }
++        stakeTxs.push(new Transaction(transactionCtorFields).add(Token.createTransferInstruction(TOKEN_PROGRAM_ID, source, destAta, wallet.publicKey, [], amount)));
++    });
 +    // burn transaction
-+    const tx = new Transaction({ feePayer: wallet.publicKey }).add(
++    const burnTx = new Transaction({ feePayer: wallet.publicKey }).add(
 +        Token.createBurnInstruction(
 +            TOKEN_PROGRAM_ID,
 +            passMint,
@@ -81,7 +103,7 @@ index b9b004d..a6f6a4d 100644
 +            1
 +        )
 +    );
-+    tx.add(
++    burnTx.add(
 +        Token.createCloseAccountInstruction(
 +            TOKEN_PROGRAM_ID,
 +            passToken,
@@ -110,23 +132,16 @@ index b9b004d..a6f6a4d 100644
              address,
              share,
 -            verified,
-+            verified: 0, // avoid error 0x36: You cannot unilaterally verify another creator, they must sign
++            verified: address === keypair.publicKey.toBase58(), // avoid error 0x36: You cannot unilaterally verify another creator, they must sign
          });
          memo = [...memo, creator];
          return memo;
      }, []);
-+    creatorsData.push(
-+        new Creator({
-+            address: keypair.publicKey.toBase58(),
-+            share: 0,
-+            verified: 1,
-+        })
-+    ); // add our wallet that can sign
 +
      const metadataData = new MetadataDataData({
          name,
          symbol,
-@@ -523,27 +558,34 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
+@@ -523,27 +573,34 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
          sellerFeeBasisPoints: seller_fee_basis_points,
          creators: creatorsData,
      });
@@ -175,11 +190,11 @@ index b9b004d..a6f6a4d 100644
 -        signers: [mint],
 +        signers: [mint, keypair],
          txs: [
-+            tx,
++            burnTx,
              createMintTx,
              createMetadataTx,
              createAssociatedTokenAccountTx,
-@@ -560,6 +602,7 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
+@@ -560,6 +617,7 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
      };
  });
  
@@ -187,7 +202,7 @@ index b9b004d..a6f6a4d 100644
  const mintEditionFromMaster = ({ connection, wallet, masterEditionMint, updateAuthority } = {}) => __awaiter(void 0, void 0, void 0, function* () {
      const masterPDA = yield MasterEdition.getPDA(masterEditionMint);
      const masterMetaPDA = yield Metadata.getPDA(masterEditionMint);
-@@ -1430,50 +1473,50 @@ const initAuction = ({ connection, wallet, vault, auctionSettings, }) => __await
+@@ -1430,50 +1488,50 @@ const initAuction = ({ connection, wallet, vault, auctionSettings, }) => __await
  });
  
  var index$1 = /*#__PURE__*/Object.freeze({

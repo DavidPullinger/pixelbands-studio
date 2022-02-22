@@ -17,7 +17,7 @@ import {
   TorusWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 import { clusterApiUrl } from "@solana/web3.js";
-import React, { FC, ReactNode, useMemo, useState } from "react";
+import React, { FC, ReactNode, useEffect, useMemo, useState } from "react";
 
 // component imports
 const NFTContainer = require("./components/NFTContainer/NFTContainer.js");
@@ -42,7 +42,7 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 export const App: FC = () => {
-  const isMobile =
+  /* const isMobile =
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
     );
@@ -50,8 +50,8 @@ export const App: FC = () => {
     <div className="mobile-wrapper">
       <img className="mobile-logo" src={logo} alt="logo" />
       <h1 className="mobile-header">Mobile site coming soon!</h1>
-    </div>
-  ) : (
+    </div> */
+  return (
     <Context>
       <Content />
     </Context>

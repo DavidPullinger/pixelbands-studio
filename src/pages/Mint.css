@@ -2,3 +2,10 @@
   font-family: "Press Start 2P";
   text-align: center;
 }
+.squish:hover {
+  cursor: pointer;
+  transform: scaleY(0.9) translateY(5%);
+}
+.squish:active {
+  transform: scaleY(0.8) translateY(11%);
+}

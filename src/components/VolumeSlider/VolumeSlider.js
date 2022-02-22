@@ -24,6 +24,8 @@ function VolumeSlider({ id, role }) {
     }
   };
 
+  useEffect(() => setUp());
+
   const setUp = () => {
     // set height of containers
     let temp = parseInt($(`#${id} .volume .meter`).css("height"));
@@ -52,7 +54,8 @@ function VolumeSlider({ id, role }) {
           value = parseInt(knob.css("bottom")) / height;
           value = Math.round(value * 100) / 100;
           // store volume
-          sessionStorage.setItem(role, value);
+          if (role && value && value !== NaN)
+            sessionStorage.setItem(role, value);
           // set volume according to value
           let video = $(`#${role}`);
           if (video.length) {
