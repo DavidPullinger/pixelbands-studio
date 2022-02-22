@@ -26,7 +26,7 @@ export const mint = async (connection, wallet, passes, metadataUrl) => {
     connection,
     wallet,
     uri: metadataUrl,
-    maxSupply: 1,
+    maxSupply: 0,
     keypair,
     passToken: new PublicKey(passes[0].token),
     passMint: new PublicKey(passes[0].mint),
