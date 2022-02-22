@@ -90,7 +90,6 @@ function Mint(props) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: JSON.stringify({
         bass: props.bandMembers.filter((el) => el.role === "Bass")?.[0].url,
@@ -114,7 +113,8 @@ function Mint(props) {
       .then((result) => {
         setVideoLoaded(true);
         setVideoUrl(result.url + "/band.mp4");
-      });
+      })
+      .catch((err) => makeBand());
   };
 
   const fetchMetadataAndMint = () => {
