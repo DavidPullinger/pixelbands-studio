@@ -86,7 +86,7 @@ function Mint(props) {
 
   const makeBand = () => {
     setVideoUrl(loading);
-    fetch("http://localhost:8888/createband", {
+    fetch("https://pixelbands-api.herokuapp.com/createband", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -123,7 +123,7 @@ function Mint(props) {
     setVideoLoaded(false);
     setMinting(true);
     // get metadata
-    fetch("http://localhost:8888/getmetadata", {
+    fetch("https://pixelbands-api.herokuapp.com/getmetadata", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -176,7 +176,6 @@ function Mint(props) {
 
   return (
     <div className="relative py-4 px-8 flex flex-col gap-8 items-center justify-center bg-[#040505]">
-      <button onClick={fetchMetadataAndMint}>test</button>
       <Link to="/" className="top-8 right-8 fixed">
         <XIcon className="h-10 w-10  hover:rotate-45 transition-transform" />
       </Link>
@@ -221,7 +220,7 @@ function Mint(props) {
                     ? "https://media4.giphy.com/media/ISOckXUybVfQ4/giphy.gif?cid=ecf05e47ve44cej41o2ou730p9yfdym1wcbjs2bmxd7llpu5&rid=giphy.gif&ct=g"
                     : "https://media.giphy.com/media/jPBlSAfeQts9goDVC4/giphy.gif"
                 }
-                alt="sad spongebob"
+                alt="image"
               />
             ) : (
               <video
