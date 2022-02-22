@@ -85,6 +85,7 @@ function Mint(props) {
   };
 
   const makeBand = () => {
+    console.log("Curiosity killed the cat");
     setVideoUrl(loading);
     fetch("https://pixelbands-api.herokuapp.com/createband", {
       method: "POST",
