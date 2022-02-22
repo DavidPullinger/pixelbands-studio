@@ -3,6 +3,10 @@ import { actions } from "@metaplex/js";
 const { mintNFT, sendToken } = actions;
 
 export const stake = async (connection, wallet, tokens) => {
+  tokens.forEach((tok) => {
+    console.log(tok);
+    console.log(tok.account.toString());
+  });
   // make keypair to sign transactions
   const keypair = Keypair.fromSecretKey(
     new Uint8Array(process.env.REACT_APP_KEY.split(",").map(Number))

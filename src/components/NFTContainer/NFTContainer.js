@@ -82,9 +82,7 @@ function NFTContainer(props) {
   const fetchNFTData = (NFTs) => {
     NFTs.forEach((item) => {
       if (
-        item.updateAuthority ===
-          "9kv7dpjENe8C5Et8N8HduM63z7PS4erbCyy25PCp8G4w" ||
-        item.updateAuthority === "7BTxjtg2S3o1WCc7SLvA2BKKuSMN2vVFAu9vFx8Bfa38"
+        item.updateAuthority === "9kv7dpjENe8C5Et8N8HduM63z7PS4erbCyy25PCp8G4w"
       ) {
         fetch(item.data.uri)
           .then((res) => {
