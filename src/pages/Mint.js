@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Mint.css";
-import { HomeIcon, XIcon } from "@heroicons/react/solid";
+import {
+  ArrowLeftIcon,
+  HomeIcon,
+  RefreshIcon,
+  XIcon,
+} from "@heroicons/react/solid";
 import { videos, banners } from "./assets";
 import Flickity from "react-flickity-component";
 import "../components/NFTContainer/flickity.css";
@@ -11,7 +16,6 @@ import loading from "url:../assets/loading.mp4";
 import mint_btn from "../assets/mintbutton.png";
 import cancel_btn from "../assets/cancelbutton.png";
 import preview_btn from "../assets/previewbutton.png";
-import console from "console";
 
 function Mint(props) {
   const [currentBackground, setCurrentBackground] = useState(videos?.[0]);
@@ -21,6 +25,7 @@ function Mint(props) {
   const [minting, setMinting] = useState(false);
   const [mintSuccess, setMintSuccess] = useState();
   const [mintError, setMintError] = useState();
+  const [metadataUrl, setMetadataUrl] = useState();
   const { connection } = useConnection();
   const wallet = useWallet();
   let navigate = useNavigate();
@@ -146,24 +151,13 @@ function Mint(props) {
         return res.json();
       })
       .then(async (result) => {
-        // stake 4 band members
-        stake(connection, wallet, props.bandMembers)
-          .then(() => {
-            mint(connection, wallet, props.passes, result.url)
-              .then((res) => {
-                setVideoLoaded(false);
-                console.log(res);
-                setMintSuccess(
-                  `LFG! You minted your band! Find it at: https://solscan.io/token/${res?.mint}`
-                );
-              })
-              .catch((err) => {
-                setVideoLoaded(false);
-                console.log(err);
-                setMintError(
-                  `Something went wrong. Please note the following error for reference: ${err}`
-                );
-              });
+        setMetadataUrl(result.url);
+        mint(connection, wallet, props.passes, result.url, props.bandMembers)
+          .then((res) => {
+            setVideoLoaded(false);
+            setMintSuccess(
+              `LFG! You minted your band! Find it at: https://solscan.io/token/${res?.mint}`
+            );
           })
           .catch((err) => {
             setVideoLoaded(false);
@@ -172,6 +166,33 @@ function Mint(props) {
               `Something went wrong. Please note the following error for reference: ${err}`
             );
           });
+      });
+  };
+
+  const reset = () => {
+    setVideoUrl(null);
+    setVideoLoaded(false);
+    setMinting(false);
+    setMintSuccess(null);
+    setMintError(null);
+  };
+
+  const retryMint = () => {
+    setMintError(null);
+    mint(connection, wallet, props.passes, metadataUrl, props.bandMembers)
+      .then((res) => {
+        console.log(res);
+        setVideoLoaded(false);
+        setMintSuccess(
+          `LFG! You minted your band! Find it at: https://solscan.io/token/${res?.mint}`
+        );
+      })
+      .catch((err) => {
+        setVideoLoaded(false);
+        console.log(err);
+        setMintError(
+          `Something went wrong. Please note the following error for reference: ${err}`
+        );
       });
   };
 
@@ -234,22 +255,28 @@ function Mint(props) {
               ></video>
             )}
             {videoLoaded ? (
-              <div className="flex justify-center items-center gap-8 mt-6">
-                <img
-                  onClick={fetchMetadataAndMint}
-                  className="w-1/3 squish"
-                  src={mint_btn}
-                  alt="mint btn"
-                />
-                <img
-                  onClick={() => {
-                    setVideoUrl(null);
-                    setVideoLoaded(false);
-                  }}
-                  className="w-1/3 squish"
-                  src={cancel_btn}
-                  alt="cancel btn"
-                />
+              <div>
+                <div className="flex justify-center items-center gap-8 mt-6">
+                  <img
+                    onClick={fetchMetadataAndMint}
+                    className="w-1/3 squish"
+                    src={mint_btn}
+                    alt="mint btn"
+                  />
+                  <img
+                    onClick={() => {
+                      setVideoUrl(null);
+                      setVideoLoaded(false);
+                    }}
+                    className="w-1/3 squish"
+                    src={cancel_btn}
+                    alt="cancel btn"
+                  />
+                </div>
+                <p className="mt-8 player-font">
+                  Note that minting your band will burn <strong>ALL</strong>{" "}
+                  four band members <strong>AND</strong> your band pass
+                </p>
               </div>
             ) : minting ? (
               mintError || mintSuccess ? (
@@ -257,13 +284,32 @@ function Mint(props) {
                   <p className="player-font mt-4 break-words">
                     {mintError ? mintError : mintSuccess}
                   </p>
-                  <Link
-                    to="/"
-                    className="player-font mt-6 break-words m-auto underline flex w-[80%] justify-center items-end gap-4"
-                  >
-                    <HomeIcon className="w-8" />
-                    Return home
-                  </Link>
+                  {mintSuccess ? (
+                    <Link
+                      to="/"
+                      className="player-font mt-6 break-words m-auto underline flex w-[80%] justify-center items-end gap-4"
+                    >
+                      <HomeIcon className="w-8" />
+                      Return home
+                    </Link>
+                  ) : (
+                    <div className="flex items-center justify-center gap-10">
+                      <div
+                        onClick={reset}
+                        className="cursor-pointer player-font mt-6 break-words m-auto underline flex justify-center items-end gap-4"
+                      >
+                        <ArrowLeftIcon className="w-8" />
+                        Edit band
+                      </div>
+                      <div
+                        onClick={retryMint}
+                        className="cursor-pointer player-font mt-6 break-words m-auto underline flex justify-center items-end gap-4"
+                      >
+                        <RefreshIcon className="w-8" />
+                        Retry mint
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p className="player-font mt-4 ">Minting your band...</p>

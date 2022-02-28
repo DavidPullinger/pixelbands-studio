@@ -1,31 +1,14 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { actions } from "@metaplex/js";
-const { mintNFT, sendToken } = actions;
+const { mintNFT } = actions;
 
-export const stake = async (connection, wallet, tokens) => {
-  tokens.forEach((tok) => {
-    console.log(tok);
-    console.log(tok.account.toString());
-  });
-  // make keypair to sign transactions
-  const keypair = Keypair.fromSecretKey(
-    new Uint8Array(process.env.REACT_APP_KEY.split(",").map(Number))
-  );
-  // stake band members
-  return await sendToken({
-    connection,
-    wallet,
-    keypair,
-    tokens,
-  });
-};
-
-export const mint = async (connection, wallet, passes, metadataUrl) => {
+export const mint = async (connection, wallet, passes, metadataUrl, tokens) => {
   // make keypair to sign transactions
   const keypair = Keypair.fromSecretKey(
     new Uint8Array(process.env.REACT_APP_KEY.split(",").map(Number))
   );
 
+  // mint band nfts, stake band members and burn band pass
   return await mintNFT({
     connection,
     wallet,
@@ -34,5 +17,6 @@ export const mint = async (connection, wallet, passes, metadataUrl) => {
     keypair,
     passToken: new PublicKey(passes[0].token),
     passMint: new PublicKey(passes[0].mint),
+    tokens,
   });
 };
