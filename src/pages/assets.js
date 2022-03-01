@@ -4,6 +4,9 @@ export const videos = [
   "BEACH",
   "CAFE",
   "GRAVEYARD",
+  "ZEN YANG",
+  "ZEN YIN",
+  "MARS CONCERT",
   "LIVE BLUE",
   "LIVE GREEN",
   "LIVE ORANGE",
@@ -24,11 +27,10 @@ export const videos = [
   "UNDERGROUND GREEN",
   "UNDERGROUND PURPLE",
   "UNDERGROUND RED",
-  "ZEN YANG",
-  "ZEN YIN",
 ];
 
 export const banners = [
+  "BLACK",
   "BLUE",
   "GRAY",
   "GREEN",

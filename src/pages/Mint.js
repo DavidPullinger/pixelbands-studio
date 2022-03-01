@@ -31,9 +31,9 @@ function Mint(props) {
   let navigate = useNavigate();
 
   const bgBucketUrl =
-    "https://ipfs.io/ipfs/bafybeidqcjzp7vl3eb57riebgjxulgytew4nzc2lgpvdexxs43nq4ygyha/";
+    "https://pixelbandsgen1bandbackgroundgif.s3.us-west-1.amazonaws.com/BGGIFS+2/";
   const bannerBucketUrl =
-    "https://ipfs.io/ipfs/bafybeigxjthygqtuqhnndno4et3dptdmmsujdvz7ssdhucfy6tn4se7ixi/";
+    "https://pixelbandsgen1bandsbnrclr.s3.us-west-1.amazonaws.com/bnrs/";
   const flickityOptions = {
     cellAlign: "left",
     groupCells: true,
