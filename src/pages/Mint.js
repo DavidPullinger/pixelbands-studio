@@ -158,6 +158,16 @@ function Mint(props) {
             setMintSuccess(
               `LFG! You minted your band! Find it at: https://solscan.io/token/${res?.mint}`
             );
+            fetch("https://pixelbands-api.herokuapp.com/storemint", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                mint: res?.mint,
+                wallet: wallet.publicKey.toBase58(),
+              }),
+            });
           })
           .catch((err) => {
             setVideoLoaded(false);
@@ -186,6 +196,16 @@ function Mint(props) {
         setMintSuccess(
           `LFG! You minted your band! Find it at: https://solscan.io/token/${res?.mint}`
         );
+        fetch("https://pixelbands-api.herokuapp.com/storemint", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            mint: res?.mint,
+            wallet: wallet.publicKey.toBase58(),
+          }),
+        });
       })
       .catch((err) => {
         setVideoLoaded(false);
