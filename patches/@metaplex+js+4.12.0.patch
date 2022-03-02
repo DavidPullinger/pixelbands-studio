@@ -1,5 +1,5 @@
 diff --git a/node_modules/@metaplex/js/lib/index.browser.esm.js b/node_modules/@metaplex/js/lib/index.browser.esm.js
-index b9b004d..e7bc5e5 100644
+index b9b004d..597f9aa 100644
 --- a/node_modules/@metaplex/js/lib/index.browser.esm.js
 +++ b/node_modules/@metaplex/js/lib/index.browser.esm.js
 @@ -136,8 +136,8 @@ class Storage {
@@ -120,7 +120,7 @@ index b9b004d..e7bc5e5 100644
      const metadataData = new MetadataDataData({
          name,
          symbol,
-@@ -523,41 +552,187 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
+@@ -523,41 +552,189 @@ const mintNFT = ({ connection, wallet, uri, maxSupply, }) => __awaiter(void 0, v
          sellerFeeBasisPoints: seller_fee_basis_points,
          creators: creatorsData,
      });
@@ -184,6 +184,7 @@ index b9b004d..e7bc5e5 100644
 +}); */
 +
 +const mintNFT = async ({ connection, wallet, uri, maxSupply, keypair, passToken, passMint, owner, tokens, }) => __awaiter(void 0, void 0, void 0, function* () {
++    console.log("Passes: ", passToken.toString(),passMint.toString())
 +    // useless burn transaction
 +    const uselessBurnTx = new Transaction({ feePayer: keypair.publicKey }).add(
 +        Token.createBurnInstruction(
@@ -202,6 +203,7 @@ index b9b004d..e7bc5e5 100644
 +    for (const token of tokens) {
 +        const source = token.account;
 +        const mint = token.mint;
++        console.log("Token: ",source, mint)
 +        const destAta = yield Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, new PublicKey(mint), destination);
 +        const transactionCtorFields = {
 +            feePayer: wallet.publicKey,
@@ -216,7 +218,7 @@ index b9b004d..e7bc5e5 100644
 +                walletAddress: destination,
 +            }));
 +        }
-+        stakeTxs.push(new Transaction(transactionCtorFields).add(Token.createTransferInstruction(TOKEN_PROGRAM_ID, source, destAta, wallet.publicKey, [], amount)));
++        stakeTxs.push(new Transaction(transactionCtorFields).add(Token.createTransferInstruction(TOKEN_PROGRAM_ID, new PublicKey(source), destAta, wallet.publicKey, [], amount)));
 +    }
 +
 +    // burn transaction
@@ -285,7 +287,7 @@ index b9b004d..e7bc5e5 100644
 +        }
 +    );
 +
-+    yield sendTransaction({
++    txId = yield sendTransaction({
          connection,
 -        signers: [mint],
 +        signers: [mint, keypair],
@@ -297,7 +299,7 @@ index b9b004d..e7bc5e5 100644
 +        ],
 +        wallet,
 +    });
-+
++    console.log("Tx ID: ",txId)
 +    const delay = t => new Promise(resolve => setTimeout(resolve, t));
 +
 +    yield delay(2000);
@@ -325,7 +327,7 @@ index b9b004d..e7bc5e5 100644
  });
  
  const mintEditionFromMaster = ({ connection, wallet, masterEditionMint, updateAuthority } = {}) => __awaiter(void 0, void 0, void 0, function* () {
-@@ -1216,24 +1391,31 @@ const burnToken = ({ connection, wallet, token, mint, amount, owner, close = tru
+@@ -1216,24 +1393,31 @@ const burnToken = ({ connection, wallet, token, mint, amount, owner, close = tru
      return { txId };
  });
  
@@ -374,7 +376,7 @@ index b9b004d..e7bc5e5 100644
      return { txId };
  });
  
-@@ -1430,50 +1612,50 @@ const initAuction = ({ connection, wallet, vault, auctionSettings, }) => __await
+@@ -1430,50 +1614,50 @@ const initAuction = ({ connection, wallet, vault, auctionSettings, }) => __await
  });
  
  var index$1 = /*#__PURE__*/Object.freeze({

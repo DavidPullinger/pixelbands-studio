@@ -13,15 +13,13 @@ export const fetchNFTsOwnedByWallet = async (userWallet, connection) => {
     userWallet
   );
 
-  const accountsWithAmount = accounts
-    .map(({ data }) => data)
-    .filter(
-      ({ amount, mint }) =>
-        amount?.toNumber() > 0 &&
-        (MemberHashList.includes(mint.toBase58()) ||
-          BandPassHashList.includes(mint.toBase58()))
-    );
-
+  const temp = accounts.filter(
+    ({ data }) =>
+      data?.amount?.toNumber() > 0 &&
+      (MemberHashList.includes(data?.mint?.toBase58()) ||
+        BandPassHashList.includes(data?.mint?.toBase58()))
+  );
+  accountsWithAmount = temp.map(({ data }) => data);
   // get mint addr and use it to get metadata address
   let nftMintAddresses = accountsWithAmount.map(({ mint }) => mint);
   let nftMetadataAddresses = [];
@@ -44,7 +42,9 @@ export const fetchNFTsOwnedByWallet = async (userWallet, connection) => {
     .filter(function (element) {
       return element !== undefined;
     });
-
+  for (let i = 0; i < nftAcInfoDeserialized.length; i++) {
+    nftAcInfoDeserialized[i].mintATA = temp[i].pubkey.toString(); // heres the fix if you're looking for it :)
+  }
   return nftAcInfoDeserialized;
 };
 

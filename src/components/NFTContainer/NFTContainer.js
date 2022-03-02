@@ -35,7 +35,7 @@ function NFTContainer(props) {
   const [currentPiano, setCurrentPiano] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [loopTimer, setLoopTimer] = useState(null);
-  const { passes, setPasses } = props;
+  const [passes, setPasses] = useState([]);
   useEffect(() => sessionStorage.clear(), []);
 
   let guitar = [];
@@ -80,7 +80,7 @@ function NFTContainer(props) {
   });
 
   const fetchNFTData = (NFTs) => {
-    NFTs.forEach((item) => {
+    NFTs.forEach(async (item) => {
       if (
         item.updateAuthority === "9kv7dpjENe8C5Et8N8HduM63z7PS4erbCyy25PCp8G4w"
       ) {
@@ -89,10 +89,6 @@ function NFTContainer(props) {
             return res.json();
           })
           .then(async (data) => {
-            const account = await findAssociatedTokenAddress(
-              wallet.publicKey,
-              new PublicKey(item.mint)
-            );
             setNFTs((NFTs) => [
               ...NFTs,
               {
@@ -108,25 +104,20 @@ function NFTContainer(props) {
                   return el.trait_type === "Musician";
                 }).value,
                 mint: item.mint,
-                account: account,
+                account: item.mintATA,
               },
             ]);
           });
       } else if (
         item.updateAuthority === "BWGzSvjwpXBhK2GzaQd2upAehzGdEDzoyUULc8uubeFn"
       ) {
-        findAssociatedTokenAddress(
-          wallet.publicKey,
-          new PublicKey(item.mint)
-        ).then((res) =>
-          setPasses((passes) => [
-            ...passes,
-            {
-              mint: item.mint,
-              token: res.toString(),
-            },
-          ])
-        );
+        setPasses((passes) => [
+          ...passes,
+          {
+            mint: item.mint,
+            token: item.mintATA,
+          },
+        ]);
       }
     });
   };
@@ -462,6 +453,7 @@ function NFTContainer(props) {
           currentPiano ?? piano[0],
         ]);
         loopTimer?.cancel();
+        props.setPasses(passes);
         navigate("/mint");
       } else {
         showMintError("You need a band pass to mint your band");
