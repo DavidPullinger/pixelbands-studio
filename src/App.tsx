@@ -18,6 +18,7 @@ import {
 } from "@solana/wallet-adapter-wallets";
 import { clusterApiUrl } from "@solana/web3.js";
 import React, { FC, ReactNode, useEffect, useMemo, useState } from "react";
+import dotenv from "dotenv";
 
 // component imports
 const NFTContainer = require("./components/NFTContainer/NFTContainer.js");
@@ -42,6 +43,7 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 export const App: FC = () => {
+  dotenv.config();
   /* const isMobile =
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent

